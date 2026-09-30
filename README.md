@@ -204,6 +204,18 @@ streamlit run dashboard.py
 
 Acesse `http://localhost:8501` no navegador.
 
+### 6. Configure o login
+
+Crie `.streamlit/secrets.toml` na raiz do projeto com as credenciais da conta:
+
+```toml
+[auth]
+username = "admin"
+password = "escolha-uma-senha-forte"
+```
+
+Esse arquivo está no `.gitignore`; não publique as credenciais no repositório. No Streamlit Community Cloud, adicione a mesma configuração em **App settings > Secrets**. O login é compartilhado e não inclui cadastro de usuários nem níveis de permissão.
+
 ---
 
 ## 🌐 Deploy — Streamlit Cloud

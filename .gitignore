@@ -13,3 +13,6 @@ Thumbs.db
 
 # Variáveis de ambiente (segurança)
 .env
+
+# Credenciais locais do Streamlit
+.streamlit/secrets.toml

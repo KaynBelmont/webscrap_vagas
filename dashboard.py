@@ -4,8 +4,11 @@
 # Execute com: streamlit run dashboard.py
 # =============================================================================
 
+import hmac
+
 import pandas as pd
 import streamlit as st
+from streamlit.errors import StreamlitSecretNotFoundError
 
 # --- Configuração da página ---
 st.set_page_config(
@@ -13,6 +16,47 @@ st.set_page_config(
     page_icon="🐍",
     layout="wide"
 )
+
+# --- Autenticação ---
+try:
+    auth_config = st.secrets.get("auth", {})
+except StreamlitSecretNotFoundError:
+    auth_config = {}
+
+usuario_configurado = auth_config.get("username")
+senha_configurada = auth_config.get("password")
+
+if not usuario_configurado or not senha_configurada:
+    st.error("Configure usuário e senha em `.streamlit/secrets.toml` para acessar o dashboard.")
+    st.stop()
+
+if not st.session_state.get("autenticado", False):
+    st.title("Login")
+
+    with st.form("formulario_login"):
+        usuario = st.text_input("Usuário")
+        senha = st.text_input("Senha", type="password")
+        enviado = st.form_submit_button("Entrar")
+
+    if enviado:
+        usuario_valido = hmac.compare_digest(
+            usuario.encode("utf-8"), str(usuario_configurado).encode("utf-8")
+        )
+        senha_valida = hmac.compare_digest(
+            senha.encode("utf-8"), str(senha_configurada).encode("utf-8")
+        )
+
+        if usuario_valido and senha_valida:
+            st.session_state["autenticado"] = True
+            st.rerun()
+
+        st.error("Usuário ou senha incorretos.")
+
+    st.stop()
+
+if st.sidebar.button("Sair"):
+    st.session_state["autenticado"] = False
+    st.rerun()
 
 # --- Carrega os dados ---
 @st.cache_data
